@@ -98,6 +98,11 @@ class HelloWorld(Resource):
 api.add_namespace(ns_auth)
 api.add_namespace(ns_users)
 
+@app.route("/init-db")
+def init_db():
+    db.create_all()
+    return "Banco criado!"
+
 if __name__ == '__main__':
     # Com SQLAlchemy, opcionalmente crie as tabelas no primeiro run:
     with app.app_context():

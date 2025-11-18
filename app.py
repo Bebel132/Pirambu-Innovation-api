@@ -47,7 +47,7 @@ if is_prod():
 
 elif is_homolog():
     app.config["SESSION_COOKIE_SAMESITE"] = "None"
-    app.config["SESSION_COOKIE_SECURE"] = False  # front pode estar local
+    app.config["SESSION_COOKIE_SECURE"] = True
 
 else:  # dev local
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"

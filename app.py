@@ -63,7 +63,14 @@ authorizations = {
     }
 }
 
-CORS(app, supports_credentials=True)
+# CORS(app, supports_credentials=True)
+CORS(
+    app,
+    supports_credentials=True,
+    origins=[
+        "https://pirambuweb-testes.netlify.app"
+    ]
+)
 
 api = Api(
     app,

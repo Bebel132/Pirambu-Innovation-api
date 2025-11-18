@@ -24,6 +24,11 @@ def is_prod():
 
 app = Flask(__name__)
 
+if is_dev() == False:
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {"sslmode": "require"}
+    }
+    
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")

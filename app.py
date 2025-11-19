@@ -10,82 +10,62 @@ from resourses.Users import ns as ns_users
 
 load_dotenv()
 
-def get_env():
-    return os.getenv("ENV", "development").lower()
-
-def is_dev():
-    return get_env() == "development"
-
-def is_homolog():
-    return get_env() == "homologation"
-
-def is_prod():
-    return get_env() == "production"
-
 app = Flask(__name__)
 
-if is_dev() == False:
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"sslmode": "require"}
-    }
-    
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+ENV = os.getenv("ENV", "development").lower()
+IS_REMOTE = ENV != "development"
+
+DB_PATH = os.getenv("DATABASE_URL", "sqlite:///database.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = DB_PATH
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config['GOOGLE_CLIENT_ID'] = os.getenv("GOOGLE_CLIENT_ID")
 app.config['GOOGLE_CLIENT_SECRET'] = os.getenv("GOOGLE_CLIENT_SECRET")
 app.config['REDIRECT_URI'] = os.getenv("REDIRECT_URI")
-
-# URL para onde vai redirecionar após o callback
-app.config['FRONTEND_POST_LOGIN_URL'] = os.getenv("FRONTEND_POST_LOGIN_URL", "/")
-
+app.config['FRONTEND_POST_LOGIN_URL'] = os.getenv("FRONTEND_POST_LOGIN_URL")
 
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-if is_prod():
+if IS_REMOTE:
     app.config["SESSION_COOKIE_SAMESITE"] = "None"
     app.config["SESSION_COOKIE_SECURE"] = True
-
-elif is_homolog():
-    app.config["SESSION_COOKIE_SAMESITE"] = "None"
-    app.config["SESSION_COOKIE_SECURE"] = True
-
-else:  # dev local
+else:
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_SECURE"] = False
 
-# Swagger – esquema simbólico por cookie, para documentar rotas protegidas
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/*": {"origins": [
+        "https://pirambuweb-testes.netlify.app"
+    ]}},
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["Set-Cookie"]
+)
+
 authorizations = {
     "sessionCookie": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "session",
-        "description": "Autenticação via cookie de sessão após login com Google (/auth/login)."
+        "name": "session"
     }
 }
-
-# CORS(app, supports_credentials=True)
-CORS(
-    app,
-    supports_credentials=True,
-    resources={r"/*": {"origins": "https://pirambuweb-testes.netlify.app"}},
-    allow_headers=["Content-Type", "Authorization"],
-    expose_headers=["Set-Cookie"]
-)
 
 api = Api(
     app,
     version="1.0",
     title="Pirambu Innovation API",
-    description="API com login via Google OAuth (sessão). Use /auth/login para autenticar.",
+    description="API com login via Google OAuth e sessão.",
     authorizations=authorizations,
     security=None,
-    doc="/"  # Swagger UI em "/"
+    doc="/"
 )
 
 db.init_app(app)
-
 migrate = Migrate(app, db)
 
+api.add_namespace(ns_auth)
+api.add_namespace(ns_users)
 
 @api.route('/teste')
 class HelloWorld(Resource):
@@ -102,16 +82,12 @@ class HelloWorld(Resource):
         resp.headers["Content-Type"] = "text/html; charset=utf-8"
         return resp
 
-api.add_namespace(ns_auth)
-api.add_namespace(ns_users)
-
 @app.route("/init-db")
 def init_db():
     db.create_all()
     return "Banco criado!"
 
 if __name__ == '__main__':
-    # Com SQLAlchemy, opcionalmente crie as tabelas no primeiro run:
     with app.app_context():
         db.create_all()
     app.run(debug=True)

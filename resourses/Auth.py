@@ -7,6 +7,8 @@ from models.AllowedUsers import AllowedUsersModel
 from models.User import UserModel
 import secrets
 
+from resourses.LoginRequired import login_required
+
 ns = Namespace(
     "auth",
     description=(
@@ -128,6 +130,7 @@ class Callback(Resource):
 
 @ns.route("/logout")
 class Logout(Resource):
+    @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     @ns.response(200, "Logout OK")
     def post(self):
@@ -137,6 +140,7 @@ class Logout(Resource):
 
 @ns.route("/profile")
 class Profile(Resource):
+    @login_required
     @ns.response(200, "OK", user_model)
     @ns.response(401, "Não autenticado")
     def get(self):

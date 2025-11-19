@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from models.AllowedUsers import AllowedUsersModel
 from models.User import UserModel
 from extensions import db
+from resourses.LoginRequired import login_required
 
 
 ns = Namespace("users", description=("Operações relacionadas a usuários."))
@@ -14,6 +15,7 @@ user_model = ns.model("User", {
 
 @ns.route('/')
 class Users(Resource):
+    @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     def get(self):
         return [
@@ -23,12 +25,14 @@ class Users(Resource):
     
 @ns.route('/allowedUsers/')
 class Users(Resource):
+    @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     def get(self):
         return [
             allowedUser.json() for allowedUser in AllowedUsersModel.query.all() 
         ]
 
+    @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     @ns.expect(user_model)
     def post(self):
@@ -41,6 +45,7 @@ class Users(Resource):
     
 @ns.route('/allowedUsers/<int:id>')
 class Users(Resource):
+    @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     def delete(self, id):
         user = AllowedUsersModel.query.get_or_404(id)

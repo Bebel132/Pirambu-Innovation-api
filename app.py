@@ -67,9 +67,9 @@ authorizations = {
 CORS(
     app,
     supports_credentials=True,
-    origins=[
-        "https://pirambuweb-testes.netlify.app"
-    ]
+    resources={r"/*": {"origins": "https://pirambuweb-testes.netlify.app"}},
+    allow_headers=["Content-Type", "Authorization"],
+    expose_headers=["Set-Cookie"]
 )
 
 api = Api(

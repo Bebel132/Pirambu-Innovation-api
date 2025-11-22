@@ -1,4 +1,4 @@
-from flask import Flask, make_response
+)from flask import Flask, make_response
 from flask_migrate import Migrate
 from flask_restx import Api, Resource
 from flask_cors import CORS
@@ -36,9 +36,9 @@ else:
 CORS(
     app,
     supports_credentials=True,
-    resources={r"/*": {"origins": [
-        "https://pirambuweb-testes.netlify.app"
-    ]}},
+    #resources={r"/*": {"origins": [
+    #    "https://pirambuweb-testes.netlify.app"
+    #]}},
     allow_headers=["Content-Type", "Authorization"],
     expose_headers=["Set-Cookie"]
 )

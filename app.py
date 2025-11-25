@@ -7,6 +7,7 @@ import os
 from extensions import db
 from resourses.Auth import ns as ns_auth
 from resourses.Users import ns as ns_users
+from resourses.Courses import ns as ns_courses
 
 load_dotenv()
 
@@ -66,6 +67,7 @@ migrate = Migrate(app, db)
 
 api.add_namespace(ns_auth)
 api.add_namespace(ns_users)
+api.add_namespace(ns_courses)
 
 @api.route('/teste')
 class HelloWorld(Resource):

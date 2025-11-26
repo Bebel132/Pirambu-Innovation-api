@@ -46,14 +46,20 @@ class Courses(Resource):
     @login_required
     @ns.expect(course_model)
     def post(self):
-        data = request.get_json()
+        title = request.form.get("title")
+        description = request.form.get("description")
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        is_draft = request.form.get("is_draft", "true").lower() == "true"
+        
         new_course = CourseModel(
-            title=data['title'],
-            description=data.get('description'),
-            start_date=datetime.fromisoformat(data['start_date']),
-            end_date=datetime.fromisoformat(data['end_date']),
-            is_draft=data.get('is_draft', True)
+            title=title,
+            description=description,
+            start_date=datetime.fromisoformat(start_date),
+            end_date=datetime.fromisoformat(end_date),
+            is_draft=is_draft
         )
+
         db.session.add(new_course)
         db.session.commit()
         return new_course.json(), 201
@@ -63,7 +69,20 @@ class Course(Resource):
     @login_required
     @ns.expect(course_model)
     def put(self, id):
-        data = request.get_json()
+        title = request.form.get("title")
+        description = request.form.get("description")
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+        is_draft = request.form.get("is_draft", "true").lower() == "true"
+
+        data = {
+            'title': title,
+            'description': description,
+            'start_date': start_date,
+            'end_date': end_date,
+            'is_draft': is_draft
+        }
+        
         course = CourseModel.query.get(id)
         if not course:
             ns.abort(404, "Curso não encontrado")
@@ -86,7 +105,16 @@ class Course(Resource):
         db.session.delete(course)
         db.session.commit()
         return {"message": "Curso deletado com sucesso"}, 200
-    
+
+@ns.route('/publish/<int:id>')
+class CoursePublish(Resource):
+    @login_required
+    def post(self, id):
+        course = CourseModel.query.get(id)
+        course.is_draft = False
+        db.session.commit()
+        return {"message": "Curso publicado com sucesso"}, 200
+
 @ns.route('/<int:id>/upload')
 class CourseFileUpload(Resource):
     @login_required

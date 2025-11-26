@@ -20,5 +20,6 @@ class CourseModel(db.Model):
             'start_date': self.start_date.isoformat(),
             'end_date': self.end_date.isoformat(),
             'hasFile': self.file is not None,
+            'is_draft': self.is_draft,
             'created_at': self.created_at.isoformat()
         }

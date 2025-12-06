@@ -26,13 +26,17 @@ app.config['GOOGLE_CLIENT_SECRET'] = os.getenv("GOOGLE_CLIENT_SECRET")
 app.config['REDIRECT_URI'] = os.getenv("REDIRECT_URI")
 app.config['FRONTEND_POST_LOGIN_URL'] = os.getenv("FRONTEND_POST_LOGIN_URL")
 
-app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_PERMANENT"] = False
+
 if IS_REMOTE:
     app.config["SESSION_COOKIE_SAMESITE"] = "None"
     app.config["SESSION_COOKIE_SECURE"] = True
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
 else:
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 CORS(
     app,

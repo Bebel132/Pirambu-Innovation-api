@@ -32,7 +32,15 @@ course_model = ns.model('Course', {
 class CoursesPublished(Resource):
     def get(self):
         return [
-            course.json() for course in CourseModel.query.filter_by(is_draft=False).all()
+            course.json() for course in CourseModel.query.filter_by(is_draft=False, active=True).all()
+        ]
+    
+@ns.route('/deactivated')
+class CoursesDeactivated(Resource):
+    @login_required
+    def get(self):
+        return [
+            course.json() for course in CourseModel.query.filter_by(active=False).all()
         ]
 
 @ns.route('/')
@@ -40,7 +48,7 @@ class Courses(Resource):
     @login_required
     def get(self):
         return [
-            course.json() for course in CourseModel.query.all()
+            course.json() for course in CourseModel.query.filter_by(active=True).all()
         ]
     
     @login_required
@@ -98,6 +106,24 @@ class CoursePublish(Resource):
         course.is_draft = False
         db.session.commit()
         return {"message": "Curso publicado com sucesso"}, 200
+
+@ns.route('/deactivate/<int:id>')
+class CourseDeactivate(Resource):
+    @login_required
+    def post(self, id):
+        course = CourseModel.query.get(id)
+        course.active = False
+        db.session.commit()
+        return {"message": "Curso desativado com sucesso"}, 200
+    
+@ns.route('/activate/<int:id>')
+class CourseActivate(Resource):
+    @login_required
+    def post(self, id):
+        course = CourseModel.query.get(id)
+        course.active = True
+        db.session.commit()
+        return {"message": "Curso ativado com sucesso"}, 200
 
 @ns.route('/<int:id>/upload')
 class CourseFileUpload(Resource):

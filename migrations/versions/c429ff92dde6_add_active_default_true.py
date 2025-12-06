@@ -22,12 +22,12 @@ def upgrade():
                 'active',
                 sa.Boolean(),
                 nullable=False,
-                server_default=sa.text("1")
+                server_default=sa.text("true")
             )
         )
 
     # 2) garante que todas as linhas existentes têm valor
-    op.execute("UPDATE courses SET active = 1")
+    op.execute("UPDATE courses SET active = true")
 
     # 3) remove o default da coluna (opcional)
     with op.batch_alter_table('courses') as batch_op:

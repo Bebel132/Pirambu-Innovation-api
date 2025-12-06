@@ -32,7 +32,15 @@ course_model = ns.model('Course', {
 class CoursesPublished(Resource):
     def get(self):
         return [
-            course.json() for course in CourseModel.query.filter_by(is_draft=False).all()
+            course.json() for course in CourseModel.query.filter_by(is_draft=False, active=True).all()
+        ]
+    
+@ns.route('/deactivated')
+class CoursesDeactivated(Resource):
+    @login_required
+    def get(self):
+        return [
+            course.json() for course in CourseModel.query.filter_by(active=False).all()
         ]
 
 @ns.route('/')
@@ -40,24 +48,20 @@ class Courses(Resource):
     @login_required
     def get(self):
         return [
-            course.json() for course in CourseModel.query.all()
+            course.json() for course in CourseModel.query.filter_by(active=True).all()
         ]
     
     @login_required
     @ns.expect(course_model)
     def post(self):
-        title = request.form.get("title")
-        description = request.form.get("description")
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("end_date")
-        is_draft = request.form.get("is_draft", "true").lower() == "true"
-        
+        data = request.get_json()
+        print(data)
         new_course = CourseModel(
-            title=title,
-            description=description,
-            start_date=datetime.fromisoformat(start_date),
-            end_date=datetime.fromisoformat(end_date),
-            is_draft=is_draft
+            title=data['title'],
+            description=data['description'],
+            start_date=datetime.fromisoformat(data['start_date']),
+            end_date=datetime.fromisoformat(data['end_date']),
+            is_draft=data['is_draft']
         )
 
         db.session.add(new_course)
@@ -69,29 +73,17 @@ class Course(Resource):
     @login_required
     @ns.expect(course_model)
     def put(self, id):
-        title = request.form.get("title")
-        description = request.form.get("description")
-        start_date = request.form.get("start_date")
-        end_date = request.form.get("end_date")
-        is_draft = request.form.get("is_draft", "true").lower() == "true"
+        data = request.get_json()
 
-        data = {
-            'title': title,
-            'description': description,
-            'start_date': start_date,
-            'end_date': end_date,
-            'is_draft': is_draft
-        }
-        
         course = CourseModel.query.get(id)
         if not course:
             ns.abort(404, "Curso não encontrado")
         
         course.title = data['title']
-        course.description = data.get('description')
+        course.description = data['description']
         course.start_date = datetime.fromisoformat(data['start_date'])
         course.end_date = datetime.fromisoformat(data['end_date'])
-        course.is_draft = data.get('is_draft', course.is_draft)
+        course.is_draft = data['is_draft']
         
         db.session.commit()
         return course.json(), 200
@@ -114,6 +106,24 @@ class CoursePublish(Resource):
         course.is_draft = False
         db.session.commit()
         return {"message": "Curso publicado com sucesso"}, 200
+
+@ns.route('/deactivate/<int:id>')
+class CourseDeactivate(Resource):
+    @login_required
+    def post(self, id):
+        course = CourseModel.query.get(id)
+        course.active = False
+        db.session.commit()
+        return {"message": "Curso desativado com sucesso"}, 200
+    
+@ns.route('/activate/<int:id>')
+class CourseActivate(Resource):
+    @login_required
+    def post(self, id):
+        course = CourseModel.query.get(id)
+        course.active = True
+        db.session.commit()
+        return {"message": "Curso ativado com sucesso"}, 200
 
 @ns.route('/<int:id>/upload')
 class CourseFileUpload(Resource):

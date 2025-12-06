@@ -10,6 +10,7 @@ class CourseModel(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     file = db.Column(db.LargeBinary, nullable=True)
     is_draft = db.Column(db.Boolean, nullable=False, default=True)
+    active = db.Column(db.Boolean, nullable=True, default=True)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
     def json(self):
@@ -21,5 +22,6 @@ class CourseModel(db.Model):
             'end_date': self.end_date.isoformat(),
             'hasFile': self.file is not None,
             'is_draft': self.is_draft,
+            'active': self.active,
             'created_at': self.created_at.isoformat()
         }

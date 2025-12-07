@@ -70,6 +70,12 @@ class Courses(Resource):
     
 @ns.route('/<int:id>')
 class Course(Resource):
+    def get(self, id):
+        course = CourseModel.query.get(id)
+        if not course:
+            ns.abort(404, "Curso não encontrado")
+        return course.json(), 200
+    
     @login_required
     @ns.expect(course_model)
     def put(self, id):

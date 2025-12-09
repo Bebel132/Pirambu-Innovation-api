@@ -20,7 +20,6 @@ events_model = ns.model("Events", {
     "id": fields.Integer(readonly=True, description="ID da notícia"),
     "title": fields.String(required=True, description="Título da notícia"),
     "description": fields.String(description="Descrição da notícia"),
-    "hasFile": fields.Boolean(description="Indica se a notícia possui um arquivo associado"),
     "is_draft": fields.Boolean(description="Indica se a notícia está em rascunho"),
     "created_at": fields.DateTime(readonly=True, description="Data de criação da notícia")
 })

@@ -23,7 +23,6 @@ course_model = ns.model("Course", {
     "description": fields.String(description="Descrição do curso"),
     "start_date": fields.DateTime(required=True, description="Data de início do curso"),
     "end_date": fields.DateTime(required=True, description="Data de término do curso"),
-    "hasFile": fields.Boolean(description="Indica se o curso possui um arquivo associado"),
     "is_draft": fields.Boolean(description="Indica se o curso está em rascunho"),
     "created_at": fields.DateTime(readonly=True, description="Data de criação do curso")
 })

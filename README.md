@@ -186,16 +186,3 @@ Mesma estrutura de projetos:
 - **News / Projects / Events:** `{ id, title, description, hasFile, is_draft, created_at }`
 
 ---
-
-## Exemplos de uso (cURL)
-
-```bash
-# Login
-curl -i http://localhost:5000/auth/login
-
-# Perfil autenticado
-curl -H "Cookie: session=<valor>" http://localhost:5000/auth/profile
-
-# Criar curso
-curl -X POST http://localhost:5000/courses/   -H "Content-Type: application/json"   -d '{"title":"Introdução ao Python","description":"Curso básico","start_date":"2025-01-10T09:00:00Z","end_date":"2025-01-15T12:00:00Z","is_draft":true}'
-```

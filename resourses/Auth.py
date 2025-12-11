@@ -87,11 +87,13 @@ class Callback(Resource):
         )
         userinfo_response.raise_for_status()
         userinfo = userinfo_response.json()
+        print(userinfo)
 
         if(AllowedUsersModel.query.filter_by(email=userinfo.get("email")).first() != None):
             # Campos típicos do OpenID
             google_id = userinfo.get("sub")
             email = (userinfo.get("email") or "").strip().lower()
+            picture = userinfo.get("picture")
             username = userinfo.get("name")
 
             if not email:
@@ -110,11 +112,13 @@ class Callback(Resource):
                     google_id=google_id,
                     username=username,
                     email=email,
+                    picture=picture,
                 )
                 db.session.add(user)
             else:
                 user.google_id = user.google_id or google_id
                 user.username = username or user.username
+                user.picture = picture or user.picture
 
             db.session.commit()
 

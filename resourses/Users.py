@@ -16,7 +16,6 @@ user_model = ns.model("User", {
 @ns.route('/')
 class Users(Resource):
     @login_required
-    @ns.doc(security=[{"sessionCookie": []}])
     def get(self):
         return [
             user.json() for user in UserModel.query.all()
@@ -26,14 +25,12 @@ class Users(Resource):
 @ns.route('/allowedUsers/')
 class Users(Resource):
     @login_required
-    @ns.doc(security=[{"sessionCookie": []}])
     def get(self):
         return [
             allowedUser.json() for allowedUser in AllowedUsersModel.query.all() 
         ]
 
     @login_required
-    @ns.doc(security=[{"sessionCookie": []}])
     @ns.expect(user_model)
     def post(self):
         data = request.get_json()
@@ -46,9 +43,20 @@ class Users(Resource):
 @ns.route('/allowedUsers/<int:id>')
 class Users(Resource):
     @login_required
-    @ns.doc(security=[{"sessionCookie": []}])
     def delete(self, id):
         user = AllowedUsersModel.query.get_or_404(id)
         db.session.delete(user)
         db.session.commit()
         return '', 200
+    
+    @login_required
+    @ns.expect(user_model)
+    def put(self, id):
+        data = request.get_json()
+        print(data)
+        user = AllowedUsersModel.query.get_or_404(id)
+
+        user.email = data["email"]
+        db.session.commit()
+
+        return {"message": "Acesso alterado"}, 200

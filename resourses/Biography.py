@@ -1,10 +1,9 @@
 import io
 from flask import request, send_file
-from flask_restx import Namespace, fields
+from flask_restx import Namespace, Resource, fields
 from extensions import db
 from resourses.LoginRequired import login_required
 from models.Biography import BiographyModel
-
 
 ns = Namespace("biography", description="Operações relacionadas a seção 'sobre nós'")
 
@@ -21,15 +20,15 @@ biography_model = ns.model("Biography", {
 })
 
 @ns.route("/")
-class Biography():
+class Biography(Resource):
     def get(self):
         biography = BiographyModel.query.first()
         if biography:
             return biography.json()
         return {}, 404
-    
+
 @ns.route("/edit")
-class BiographyEdit():
+class BiographyEdit(Resource):
     @login_required
     @ns.expect(biography_model)
     def put(self):
@@ -44,9 +43,9 @@ class BiographyEdit():
             biography.description = data.get("description", biography.description)
         db.session.commit()
         return biography.json()
-    
+
 @ns.route("/upload")
-class BiographyUpload():
+class BiographyUpload(Resource):
     @login_required
     @ns.expect(upload_parser)
     def post(self):
@@ -54,18 +53,16 @@ class BiographyUpload():
         if not biography:
             biography = BiographyModel()
             db.session.add(biography)
-        
-        file = request.files["file"]
 
+        file = request.files["file"]
         file_bytes = file.read()
         biography.file = file_bytes
 
         db.session.commit()
-
         return {"message": "Arquivo enviado com sucesso"}, 200
-    
+
 @ns.route("/file")
-class BiographyFile():
+class BiographyFile(Resource):
     def get(self):
         biography = BiographyModel.query.first()
         if not biography or not biography.file:
@@ -73,7 +70,7 @@ class BiographyFile():
 
         return send_file(
             io.BytesIO(biography.file),
-            mimetype="image/png",  # ou image/jpeg dependendo do tipo
+            mimetype="image/png",
             as_attachment=False,
-            download_name=f"text_{id}.png"
+            download_name=f"text_{biography.id}.png"
         )

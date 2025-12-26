@@ -1,8 +1,9 @@
 from extensions import db
 
 class BiographyModel(db.Model):
-    __tablename__ = 'biographies'
+    __tablename__ = 'biography'
 
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     description = db.Column(db.Text, nullable=True)
     file = db.Column(db.LargeBinary, nullable=True)
     

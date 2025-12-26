@@ -17,6 +17,7 @@ class EventsModel(db.Model):
             'title': self.title,
             'description': self.description,
             'hasFile': self.file is not None,
+            'is_draft': self.is_draft,
             'active': self.active,
             'created_at': self.created_at.isoformat()
         }

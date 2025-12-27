@@ -17,11 +17,11 @@ upload_parser.add_argument(
 )
 
 projects_model = ns.model("Projects", {
-    "id": fields.Integer(readonly=True, description="ID da notícia"),
-    "title": fields.String(required=True, description="Título da notícia"),
-    "description": fields.String(description="Descrição da notícia"),
-    "is_draft": fields.Boolean(description="Indica se a notícia está em rascunho"),
-    "created_at": fields.DateTime(readonly=True, description="Data de criação da notícia")
+    "id": fields.Integer(readonly=True, description="ID do evento"),
+    "title": fields.String(required=True, description="Título do evento"),
+    "description": fields.String(description="Descrição do evento"),
+    "is_draft": fields.Boolean(description="Indica se o evento está em rascunho"),
+    "created_at": fields.DateTime(readonly=True, description="Data de criação do evento")
 })
 
 @ns.route("/published")
@@ -66,7 +66,7 @@ class Project(Resource):
     def get(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
         return projects.json()
     
     @login_required
@@ -74,7 +74,7 @@ class Project(Resource):
     def put(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
         
         data = request.get_json()
         projects.title = data["title"]
@@ -89,11 +89,11 @@ class Project(Resource):
     def delete(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
         
         db.session.delete(projects)
         db.session.commit()
-        return {"message": "Notícia deletada com sucesso"}, 200
+        return {"message": "Evento deletada com sucesso"}, 200
     
 @ns.route("/publish/<int:id>")
 class ProjectsPublish(Resource):
@@ -101,11 +101,11 @@ class ProjectsPublish(Resource):
     def post(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
         
         projects.is_draft = False
         db.session.commit()
-        return {"message": "Notícia publicada com sucesso"}, 200
+        return {"message": "Evento publicada com sucesso"}, 200
     
 @ns.route("/deactivate/<int:id>")
 class ProjectsDeactivate(Resource):
@@ -113,11 +113,11 @@ class ProjectsDeactivate(Resource):
     def post(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
 
         projects.active = False
         db.session.commit()
-        return {"messagem": "Notícia desativada com sucesso"}, 200
+        return {"messagem": "Evento desativada com sucesso"}, 200
     
 @ns.route("/activate/<int:id>")
 class ProjectsActivate(Resource):
@@ -125,11 +125,11 @@ class ProjectsActivate(Resource):
     def post(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
 
         projects.active = True
         db.session.commit()
-        return {"message": "Notícia ativada com sucesso"}, 200
+        return {"message": "Evento ativada com sucesso"}, 200
     
 @ns.route("/<int:id>/upload")
 class projectsFileUpload(Resource):
@@ -138,7 +138,7 @@ class projectsFileUpload(Resource):
     def post(self, id):
         projects = ProjectsModel.query.get_or_404(id)
         if not projects:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Projeto não encontrado")
 
         file = request.files["file"]
 

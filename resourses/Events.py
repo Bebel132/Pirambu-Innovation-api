@@ -17,11 +17,11 @@ upload_parser.add_argument(
 )
 
 events_model = ns.model("Events", {
-    "id": fields.Integer(readonly=True, description="ID da notícia"),
-    "title": fields.String(required=True, description="Título da notícia"),
-    "description": fields.String(description="Descrição da notícia"),
-    "is_draft": fields.Boolean(description="Indica se a notícia está em rascunho"),
-    "created_at": fields.DateTime(readonly=True, description="Data de criação da notícia")
+    "id": fields.Integer(readonly=True, description="ID do evento"),
+    "title": fields.String(required=True, description="Título do evento"),
+    "description": fields.String(description="Descrição do evento"),
+    "is_draft": fields.Boolean(description="Indica se o evento está em rascunho"),
+    "created_at": fields.DateTime(readonly=True, description="Data de criação do evento")
 })
 
 @ns.route("/published")
@@ -66,7 +66,7 @@ class Event(Resource):
     def get(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
         return events.json()
     
     @login_required
@@ -74,7 +74,7 @@ class Event(Resource):
     def put(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
         
         data = request.get_json()
         events.title = data["title"]
@@ -89,11 +89,11 @@ class Event(Resource):
     def delete(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
         
         db.session.delete(events)
         db.session.commit()
-        return {"message": "Notícia deletada com sucesso"}, 200
+        return {"message": "Evento deletada com sucesso"}, 200
     
 @ns.route("/publish/<int:id>")
 class EventsPublish(Resource):
@@ -101,11 +101,11 @@ class EventsPublish(Resource):
     def post(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
         
         events.is_draft = False
         db.session.commit()
-        return {"message": "Notícia publicada com sucesso"}, 200
+        return {"message": "Evento publicada com sucesso"}, 200
     
 @ns.route("/deactivate/<int:id>")
 class EventsDeactivate(Resource):
@@ -113,11 +113,11 @@ class EventsDeactivate(Resource):
     def post(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
 
         events.active = False
         db.session.commit()
-        return {"messagem": "Notícia desativada com sucesso"}, 200
+        return {"messagem": "Evento desativada com sucesso"}, 200
     
 @ns.route("/activate/<int:id>")
 class EventsActivate(Resource):
@@ -125,11 +125,11 @@ class EventsActivate(Resource):
     def post(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
 
         events.active = True
         db.session.commit()
-        return {"message": "Notícia ativada com sucesso"}, 200
+        return {"message": "Evento ativada com sucesso"}, 200
     
 @ns.route("/<int:id>/upload")
 class eventsFileUpload(Resource):
@@ -138,7 +138,7 @@ class eventsFileUpload(Resource):
     def post(self, id):
         events = EventsModel.query.get_or_404(id)
         if not events:
-            ns.abort(404, "Notícia não encontrada")
+            ns.abort(404, "Evento não encontrado")
 
         file = request.files["file"]
 

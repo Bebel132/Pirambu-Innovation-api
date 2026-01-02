@@ -128,6 +128,7 @@ class ProjectsActivate(Resource):
             ns.abort(404, "Projeto não encontrado")
 
         projects.active = True
+        projects.is_draft = True
         db.session.commit()
         return {"message": "Evento ativada com sucesso"}, 200
     

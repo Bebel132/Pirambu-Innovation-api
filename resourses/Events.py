@@ -128,6 +128,7 @@ class EventsActivate(Resource):
             ns.abort(404, "Evento não encontrado")
 
         events.active = True
+        events.is_draft = True
         db.session.commit()
         return {"message": "Evento ativada com sucesso"}, 200
     

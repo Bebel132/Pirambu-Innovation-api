@@ -136,6 +136,7 @@ class CourseActivate(Resource):
             ns.abort(404, "Curso não encontrado")
             
         course.active = True
+        course.is_draft = True
         db.session.commit()
         return {"message": "Curso ativado com sucesso"}, 200
 

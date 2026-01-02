@@ -128,6 +128,7 @@ class NewsActivate(Resource):
             ns.abort(404, "Notícia não encontrada")
 
         news.active = True
+        news.is_draft = True
         db.session.commit()
         return {"message": "Notícia ativada com sucesso"}, 200
     

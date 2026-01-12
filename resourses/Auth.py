@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-from flask import jsonify, redirect, request, session, current_app
+from flask import jsonify, make_response, redirect, request, session, current_app
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 import requests
@@ -34,7 +34,7 @@ class Login(Resource):
 
         # Proteção CSRF com 'state'
         state = secrets.token_urlsafe(32)
-        session["oauth_state"] = state
+        session["google_oauth_state"] = state   
 
         params = {
             "client_id": current_app.config["GOOGLE_CLIENT_ID"],
@@ -59,9 +59,9 @@ class Callback(Resource):
             return {"error": "No code provided"}, 400
 
         # Valida 'state' (CSRF)
-        if not state or state != session.get("oauth_state"):
+        if state != session.get("google_oauth_state"):
             return {"error": "Invalid state"}, 400
-        session.pop("oauth_state", None)
+        session.pop("google_oauth_state", None)
 
         # 1) Troca code por token
         token_endpoint = "https://oauth2.googleapis.com/token"
@@ -88,7 +88,6 @@ class Callback(Resource):
         )
         userinfo_response.raise_for_status()
         userinfo = userinfo_response.json()
-        print(userinfo)
 
         if(AllowedUsersModel.query.filter_by(email=userinfo.get("email")).first() != None):
             # Campos típicos do OpenID
@@ -142,7 +141,7 @@ class MicrosoftLogin(Resource):
 
         # Proteção CSRF
         state = secrets.token_urlsafe(32)
-        session["oauth_state"] = state
+        session["microsoft_oauth_state"] = state
 
         params = {
             "client_id": current_app.config["MICROSOFT_CLIENT_ID"],
@@ -168,10 +167,10 @@ class MicrosoftCallback(Resource):
             return {"error": "No code provided"}, 400
 
         # Valida CSRF
-        if not state or state != session.get("oauth_state"):
+        if request.args.get("state") != session.get("microsoft_oauth_state"):
             return {"error": "Invalid state"}, 400
 
-        session.pop("oauth_state", None)
+        session.pop("microsoft_oauth_state", None)
 
         # 1) Troca code por token
         token_endpoint = (
@@ -252,8 +251,16 @@ class Logout(Resource):
     @ns.doc(security=[{"sessionCookie": []}])
     @ns.response(200, "Logout OK")
     def post(self):
-        session.pop("user_id", None)
-        return {"message": "Logged out"}, 200
+        session.clear()
+        resp = make_response({"message": "Logged out"})
+        resp.set_cookie(
+            "session",
+            "",
+            expires=0,
+            path="/",
+            samesite="None",
+        )
+        return resp
 
 
 @ns.route("/profile")

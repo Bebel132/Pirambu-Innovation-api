@@ -52,6 +52,10 @@ CORS(
     #resources={r"/*": {"origins": [
     #    "https://pirambuweb-testes.netlify.app"
     #]}},
+    origins=[
+        "http://localhost:5500",
+        "https://pirambuweb-testes.netlify.app"
+    ],
     allow_headers=["Content-Type", "Authorization"],
     expose_headers=["Set-Cookie"]
 )

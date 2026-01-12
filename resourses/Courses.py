@@ -124,6 +124,8 @@ class CourseDeactivate(Resource):
             ns.abort(404, "Curso não encontrado")
 
         course.active = False
+        course.deactivated_at = datetime.utcnow()
+
         db.session.commit()
         return {"message": "Curso desativado com sucesso"}, 200
     
@@ -137,6 +139,8 @@ class CourseActivate(Resource):
             
         course.active = True
         course.is_draft = True
+        course.deactivated_at = None
+        
         db.session.commit()
         return {"message": "Curso ativado com sucesso"}, 200
 

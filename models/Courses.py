@@ -12,7 +12,6 @@ class CourseModel(db.Model):
     is_draft = db.Column(db.Boolean, nullable=False, default=True)
     active = db.Column(db.Boolean, nullable=True, default=True)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    deactivated_at = db.Column(db.DateTime, nullable=True)
 
     def json(self):
         return {

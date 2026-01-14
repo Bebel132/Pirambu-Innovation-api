@@ -30,6 +30,10 @@ app.config['GOOGLE_CLIENT_SECRET'] = os.getenv("GOOGLE_CLIENT_SECRET")
 app.config['REDIRECT_URI'] = os.getenv("REDIRECT_URI")
 app.config['FRONTEND_POST_LOGIN_URL'] = os.getenv("FRONTEND_POST_LOGIN_URL")
 
+app.config["MICROSOFT_CLIENT_ID"] = os.getenv("MICROSOFT_CLIENT_ID")
+app.config["MICROSOFT_CLIENT_SECRET"] = os.getenv("MICROSOFT_CLIENT_SECRET")
+app.config["MICROSOFT_REDIRECT_URI"] = os.getenv("MICROSOFT_REDIRECT_URI")
+
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 
@@ -48,6 +52,10 @@ CORS(
     #resources={r"/*": {"origins": [
     #    "https://pirambuweb-testes.netlify.app"
     #]}},
+    origins=[
+        "http://localhost:5500",
+        "https://pirambuweb.netlify.app"
+    ],
     allow_headers=["Content-Type", "Authorization"],
     expose_headers=["Set-Cookie"]
 )
@@ -64,7 +72,7 @@ api = Api(
     app,
     version="1.0",
     title="Pirambu Innovation API",
-    description="API com login via Google OAuth e sessão.",
+    description="API com login via Google e Microsoft.",
     authorizations=authorizations,
     security=None,
     doc="/"

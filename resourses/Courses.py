@@ -67,6 +67,14 @@ class Courses(Resource):
         db.session.commit()
         return new_course.json(), 201
     
+    @login_required
+    def delete(self):
+        courses = CourseModel.query.filter_by(active=False).all()
+        for course in courses:
+            db.session.delete(course)
+        db.session.commit()
+        return {"message": "Cursos deletados deletados com sucesso"}, 200
+    
 @ns.route("/<int:id>")
 class Course(Resource):
     def get(self, id):

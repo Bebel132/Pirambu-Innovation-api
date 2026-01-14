@@ -61,6 +61,14 @@ class Projects(Resource):
         db.session.commit()
         return new_projects.json(), 201
     
+    @login_required
+    def delete(self):
+        projects = ProjectsModel.query.filter_by(active=False).all()
+        for project in projects:
+            db.session.delete(project)
+        db.session.commit()
+        return {"message": "Cursos deletados deletados com sucesso"}, 200
+    
 @ns.route("/<int:id>")
 class Project(Resource):
     def get(self, id):
@@ -93,7 +101,7 @@ class Project(Resource):
         
         db.session.delete(projects)
         db.session.commit()
-        return {"message": "Evento deletada com sucesso"}, 200
+        return {"message": "Evento deletado com sucesso"}, 200
     
 @ns.route("/publish/<int:id>")
 class ProjectsPublish(Resource):

@@ -61,6 +61,14 @@ class News(Resource):
         db.session.commit()
         return new_news.json(), 201
     
+    @login_required
+    def delete(self):
+        news = NewsModel.query.filter_by(active=False).all()
+        for new in news:
+            db.session.delete(new)
+        db.session.commit()
+        return {"message": "Cursos deletados deletados com sucesso"}, 200
+    
 @ns.route("/<int:id>")
 class New(Resource):
     def get(self, id):

@@ -61,6 +61,14 @@ class Events(Resource):
         db.session.commit()
         return new_events.json(), 201
     
+    @login_required
+    def delete(self):
+        events = EventsModel.query.filter_by(active=False).all()
+        for event in events:
+            db.session.delete(event)
+        db.session.commit()
+        return {"message": "Eventos deletados deletados com sucesso"}, 200
+    
 @ns.route("/<int:id>")
 class Event(Resource):
     def get(self, id):

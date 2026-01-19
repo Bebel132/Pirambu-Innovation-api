@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import session, jsonify
 
+from models.AllowedUsers import AllowedUsersModel
 from models.User import UserModel
 
 
@@ -20,7 +21,8 @@ def login_required(f):
             return {"error": "User not found"}, 401
 
         # Usuário perdeu acesso
-        if not user.active:
+        allowed = AllowedUsersModel.query.filter_by(email=user.email).first()
+        if not allowed:
             session.clear()
             return {"error": "Access revoked"}, 403
 

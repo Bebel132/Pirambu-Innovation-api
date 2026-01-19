@@ -25,4 +25,5 @@ def login_required(f):
             return {"error": "Access revoked"}, 403
 
         return f(*args, **kwargs)
+    return wrapper
 

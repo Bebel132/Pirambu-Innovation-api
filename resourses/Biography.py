@@ -36,11 +36,17 @@ class BiographyEdit(Resource):
         biography = BiographyModel.query.first()
         if not biography:
             biography = BiographyModel(
-                description=data.get("description")
+                description=data.get("description"),
+                instagram=data.get("instagram"),
+                whatsapp=data.get("whatsapp"),
+                endereco=data.get("endereco"),
             )
             db.session.add(biography)
         else:
             biography.description = data.get("description", biography.description)
+            biography.instagram = data.get("instagram", biography.instagram)
+            biography.whatsapp = data.get("whatsapp", biography.whatsapp)
+            biography.endereco = data.get("endereco", biography.endereco)
         db.session.commit()
         return biography.json()
 

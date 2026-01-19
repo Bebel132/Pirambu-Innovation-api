@@ -15,6 +15,6 @@ class BiographyModel(db.Model):
             'description': self.description,
             'instagram': self.instagram,
             'whatsapp': self.whatsapp,
-            'endereco': self.whatsapp,
+            'endereco': self.endereco,
             'hasFile': self.file is not None,
         }

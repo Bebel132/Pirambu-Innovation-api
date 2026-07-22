@@ -1,4 +1,4 @@
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_migrate import Migrate
 from flask_restx import Api, Resource
 from flask_cors import CORS
@@ -127,7 +127,10 @@ def security_headers(response):
         "camera=(), microphone=(), geolocation=()"
     )
 
-    response.headers["Cross-Origin-Resource-Policy"] = "same-site"
+    if request.path.endswith("/file"):
+        response.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
+    else:
+        response.headers["Cross-Origin-Resource-Policy"] = "same-site"
 
     response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none';"
     

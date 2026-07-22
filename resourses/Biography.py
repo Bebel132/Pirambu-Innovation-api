@@ -1,5 +1,6 @@
+import hashlib
 import io
-from flask import request, send_file
+from flask import request, send_file, make_response
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from resourses.decorators.LoginRequired import login_required
@@ -76,9 +77,18 @@ class BiographyFile(Resource):
         if not biography or not biography.file:
             ns.abort(404, "Arquivo não encontrado")
 
-        return send_file(
-            io.BytesIO(biography.file),
-            mimetype="image/png",
-            as_attachment=False,
-            download_name=f"text_{biography.id}.png"
+        file_hash = hashlib.md5(biography.file).hexdigest()
+
+        response = make_response(
+            send_file(
+                io.BytesIO(biography.file),
+                mimetype="image/png",
+                as_attachment=False,
+                download_name=f"text_{biography.id}.png"
+            )
         )
+
+        response.headers["Cache-Control"] = "public, max-age=86400"
+        response.headers["ETag"] = file_hash
+
+        return response

@@ -1,5 +1,7 @@
+from asyncio import events
+import hashlib
 import io
-from flask import request, send_file
+from flask import request, send_file, make_response
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from models.News import NewsModel
@@ -163,12 +165,21 @@ class newsFile(Resource):
     def get(self, id):
         news = NewsModel.query.get_or_404(id)
         if not news:
-            ns.abort(404, "Curso não encontrado")
-            
+            ns.abort(404, "Notícia não encontrada")
 
-        return send_file(
-            io.BytesIO(news.file),
-            mimetype="image/png",  # ou image/jpeg dependendo do tipo
-            as_attachment=False,
-            download_name=f"text_{id}.png"
+        file_hash = hashlib.md5(news.file).hexdigest()
+
+        response = make_response(
+            send_file(
+                io.BytesIO(news.file),
+                mimetype="image/png",
+                as_attachment=False,
+                download_name=f"text_{news.id}.png"
+
+            )
         )
+            
+        response.headers["Cache-Control"] = "public, max-age=86400"
+        response.headers["ETag"] = file_hash
+
+        return response

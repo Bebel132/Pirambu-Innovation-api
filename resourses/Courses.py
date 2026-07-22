@@ -1,6 +1,7 @@
 from datetime import datetime
+import hashlib
 import io
-from flask import request, send_file
+from flask import request, send_file, make_response
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from models.Courses import CourseModel
@@ -170,13 +171,19 @@ class CourseFileUpload(Resource):
 class CourseFile(Resource):
     def get(self, id):
         course = CourseModel.query.get_or_404(id)
-        if not course:
-            ns.abort(404, "Curso não encontrado")
-            
 
-        return send_file(
-            io.BytesIO(course.file),
-            mimetype="image/png",  # ou image/jpeg dependendo do tipo
-            as_attachment=False,
-            download_name=f"text_{id}.png"
+        file_hash = hashlib.md5(course.file).hexdigest()
+
+        response = make_response(
+            send_file(
+                io.BytesIO(course.file),
+                mimetype="image/png",
+                as_attachment=False,
+                download_name=f"text_{id}.png"
+            )
         )
+
+        response.headers["Cache-Control"] = "public, max-age=86400"
+        response.headers["ETag"] = file_hash
+
+        return response

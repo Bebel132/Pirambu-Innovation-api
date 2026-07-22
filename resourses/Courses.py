@@ -4,7 +4,7 @@ from flask import request, send_file
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from models.Courses import CourseModel
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
 
 
 ns = Namespace("courses", description="Operações relacionadas a cursos")

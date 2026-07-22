@@ -2,8 +2,9 @@ import io
 from flask import request, send_file
 from flask_restx import Namespace, Resource, fields
 from extensions import db
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
 from models.Biography import BiographyModel
+from resourses.decorators.Limiter import limiter
 
 ns = Namespace("biography", description="Operações relacionadas a seção 'sobre nós'")
 
@@ -52,6 +53,7 @@ class BiographyEdit(Resource):
 
 @ns.route("/upload")
 class BiographyUpload(Resource):
+    @limiter.limit("10/minute")
     @login_required
     @ns.expect(upload_parser)
     def post(self):

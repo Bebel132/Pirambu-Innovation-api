@@ -3,7 +3,7 @@ from flask import request, send_file
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from models.Projects import ProjectsModel
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
 
 
 ns = Namespace("projects", description="Operações relacionadas a projetos")

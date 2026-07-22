@@ -3,7 +3,7 @@ from flask import request, send_file
 from flask_restx import Namespace, Resource, fields
 from extensions import db
 from models.News import NewsModel
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
 
 
 ns = Namespace("news", description="Operações relacionadas a notícias")

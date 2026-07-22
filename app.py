@@ -12,10 +12,19 @@ from resourses.News import ns as ns_news
 from resourses.Events import ns as ns_events
 from resourses.Projects import ns as ns_projects
 from resourses.Biography import ns as ns_biography
+from werkzeug.middleware.proxy_fix import ProxyFix
+from resourses.decorators.Limiter import limiter
 
 load_dotenv()
 
 app = Flask(__name__)
+
+app.wsgi_app = ProxyFix(
+    app.wsgi_app,
+    x_for=1,
+    x_proto=1,
+    x_host=1,
+)
 
 ENV = os.getenv("ENV", "development").lower()
 IS_REMOTE = ENV != "development"
@@ -75,11 +84,12 @@ api = Api(
     description="API com login via Google e Microsoft.",
     authorizations=authorizations,
     security=None,
-    doc="/"
+    doc= False if IS_REMOTE else "/"
 )
 
 db.init_app(app)
 migrate = Migrate(app, db)
+limiter.init_app(app)
 
 api.add_namespace(ns_auth)
 api.add_namespace(ns_users)
@@ -104,12 +114,31 @@ class HelloWorld(Resource):
         resp.headers["Content-Type"] = "text/html; charset=utf-8"
         return resp
 
-@app.route("/init-db")
-def init_db():
-    db.create_all()
-    return "Banco criado!"
+@app.after_request
+def security_headers(response):
+
+    response.headers["X-Frame-Options"] = "DENY"
+
+    response.headers["X-Content-Type-Options"] = "nosniff"
+
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=()"
+    )
+
+    response.headers["Cross-Origin-Resource-Policy"] = "same-site"
+
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none';"
+    
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+    return response
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    if IS_REMOTE:
+        app.run(host="0.0.0.0", port=5000, debug=False)
+    else:
+        app.run(debug=True)

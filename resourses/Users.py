@@ -3,7 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from models.AllowedUsers import AllowedUsersModel
 from models.User import UserModel
 from extensions import db
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
 
 
 ns = Namespace("users", description=("Operações relacionadas a usuários."))

@@ -6,8 +6,8 @@ import requests
 from models.AllowedUsers import AllowedUsersModel
 from models.User import UserModel
 import secrets
-
-from resourses.LoginRequired import login_required
+from resourses.decorators.LoginRequired import login_required
+from resourses.decorators.Limiter import limiter
 
 ns = Namespace(
     "auth",
@@ -29,6 +29,7 @@ user_model = ns.model("User", {
 @ns.route("/login")
 class Login(Resource):
     @ns.response(302, "Redireciona para Google")
+    @limiter.limit("20/minute")
     def get(self):
         google_auth_endpoint = "https://accounts.google.com/o/oauth2/v2/auth"
 
@@ -133,6 +134,7 @@ class Callback(Resource):
 
 @ns.route("/microsoft/login")
 class MicrosoftLogin(Resource):
+    @limiter.limit("20/minute")
     @ns.response(302, "Redireciona para Microsoft")
     def get(self):
         microsoft_auth_endpoint = (
@@ -247,6 +249,7 @@ class MicrosoftCallback(Resource):
 
 @ns.route("/logout")
 class Logout(Resource):
+    @limiter.limit("20/minute")
     @login_required
     @ns.doc(security=[{"sessionCookie": []}])
     @ns.response(200, "Logout OK")

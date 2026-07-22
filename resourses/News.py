@@ -180,6 +180,7 @@ class newsFile(Resource):
         )
             
         response.headers["Cache-Control"] = "public, max-age=86400"
-        response.headers["ETag"] = file_hash
+        response.set_etag(file_hash)
+        response.make_conditional(request)
 
         return response

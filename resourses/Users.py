@@ -22,7 +22,7 @@ class Users(Resource):
         ]
     
     
-@ns.route('/allowedUsers')
+@ns.route('/allowedUsers/')
 class Users(Resource):
     @login_required
     def get(self):
